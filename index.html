@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background: hsl(216, 65%, 5%);
+      --foreground: hsl(200, 20%, 90%);
+      --card: hsl(216, 52%, 12%);
+      --card-foreground: hsl(200, 20%, 95%);
+      --primary: hsl(200, 38%, 48%);
+      --primary-foreground: hsl(216, 65%, 5%);
+      --secondary: hsl(216, 45%, 18%);
+      --secondary-foreground: hsl(200, 20%, 90%);
+      --muted-foreground: hsl(200, 15%, 55%);
+      --border: hsl(200, 30%, 25%);
+      --input: hsl(216, 40%, 18%);
+      --radius: 0.75rem;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .card-container {
+      width: 100%;
+      max-width: 28rem;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: linear-gradient(145deg, hsl(216, 52%, 14%) 0%, hsl(216, 52%, 10%) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 24px -4px hsla(200, 38%, 48%, 0.15), 0 0 0 1px hsla(200, 30%, 25%, 0.5);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, hsla(200, 38%, 48%, 0.15) 0%, transparent 50%);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .corner-accent {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 5rem;
+      height: 5rem;
+      opacity: 0.2;
+    }
+
+    .corner-line-h {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 2rem;
+      height: 2px;
+      background: var(--primary);
+      box-shadow: 0 0 8px hsla(200, 38%, 48%, 0.5);
+    }
+
+    .corner-line-v {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 2px;
+      height: 2rem;
+      background: var(--primary);
+      box-shadow: 0 0 8px hsla(200, 38%, 48%, 0.5);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .icon-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      background: hsla(200, 38%, 48%, 0.15);
+      border: 1px solid hsla(200, 38%, 48%, 0.3);
+      overflow: hidden;
+    }
+
+    .icon-container svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      color: var(--primary);
+    }
+
+    .icon-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 4px;
+    }
+
+    .header-text h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--card-foreground);
+    }
+
+    .header-text p {
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--card-foreground);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      height: 2.75rem;
+      padding: 0 0.75rem;
+      background: var(--input);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) - 2px);
+      color: var(--foreground);
+      font-size: 0.875rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px hsla(200, 38%, 48%, 0.2);
+    }
+
+    .form-group .hint {
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+      margin-top: 0.5rem;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (min-width: 640px) {
+      .button-group {
+        flex-direction: row;
+      }
+    }
+
+    .btn {
+      flex: 1;
+      height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0 1rem;
+      border-radius: calc(var(--radius) - 2px);
+      font-size: 0.875rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-foreground);
+    }
+
+    .btn-primary:hover {
+      background: hsla(200, 38%, 43%, 1);
+    }
+
+    .btn-outline {
+      background: hsla(216, 45%, 18%, 0.5);
+      color: var(--secondary-foreground);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background: var(--secondary);
+      border-color: hsla(200, 38%, 48%, 0.5);
+    }
+
+    .bottom-line {
+      position: absolute;
+      bottom: 0;
+      left: 1.5rem;
+      right: 1.5rem;
+      height: 1px;
+      background: linear-gradient(to right, transparent, hsla(200, 38%, 48%, 0.4), transparent);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      box-shadow: 0 4px 24px -4px hsla(200, 38%, 48%, 0.3);
+      transform: translateY(120%);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 100;
+      max-width: 20rem;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      border-color: hsl(0, 72%, 50%);
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--card-foreground);
+      margin-bottom: 0.25rem;
+    }
+
+    .toast-message {
+      font-size: 0.8125rem;
+      color: var(--muted-foreground);
+      word-break: break-word;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card-container">
+    <div class="card">
+      <div class="corner-accent">
+        <div class="corner-line-h"></div>
+        <div class="corner-line-v"></div>
+      </div>
+
+      <div class="header">
+        <div class="icon-container" id="logo-container">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <div class="header-text">
+          <h2 id="app-title">Search Tool</h2>
+          <p id="app-subtitle">Corporate Search</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="input-field" id="input-label">Search Query</label>
+        <input type="text" id="input-field" placeholder="..." autocomplete="off">
+        <p class="hint" id="input-hint">Enter the text to search</p>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-primary" id="btn-query">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          <span id="btn-open-text">Search</span>
+        </button>
+        <button class="btn btn-outline" id="btn-copy">
+          <svg id="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+          <svg id="check-icon" style="display:none; color: var(--primary);" xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <span id="copy-text">Copy</span>
+        </button>
+      </div>
+      <div class="bottom-line"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast">
+    <div class="toast-title" id="toast-title"></div>
+    <div class="toast-message" id="toast-message"></div>
+  </div>
+
+  <script>
+    const els = {
+      title: document.getElementById('app-title'), subtitle: document.getElementById('app-subtitle'),
+      hint: document.getElementById('input-hint'), label: document.getElementById('input-label'),
+      input: document.getElementById('input-field'), logoContainer: document.getElementById('logo-container'),
+      btnQuery: document.getElementById('btn-query'), btnCopy: document.getElementById('btn-copy'),
+      toast: document.getElementById('toast'), toastTitle: document.getElementById('toast-title'),
+      toastMsg: document.getElementById('toast-message'), copyIcon: document.getElementById('copy-icon'),
+      checkIcon: document.getElementById('check-icon'), copyText: document.getElementById('copy-text'),
+      btnOpenText: document.getElementById('btn-open-text')
+    };
+
+    const translations = {
+      en: {
+        title: "Search Tool",
+        subtitle: "Corporate Search",
+        label: "Search Query",
+        placeholder: "...",
+        hint: "Enter the text to search",
+        btnQuery: "Search",
+        btnCopy: "Copy",
+        btnCopySuccess: "Success",
+        toast_config_error_title: "Config Error",
+        toast_config_error_msg: 'Parameters "host" or "ids" missing.',
+        toast_attention: "Attention",
+        toast_empty: "Please fill in the search field.",
+        toast_wait: "Please wait",
+        toast_redirecting: "Redirecting...",
+        toast_copied_title: "Copied",
+        toast_copied_msg: "Link copied to clipboard.",
+        toast_error: "Error",
+        toast_copy_fail: "Failed to copy."
+      },
+      "pt-BR": {
+        title: "Ferramenta de Busca",
+        subtitle: "Busca Corporativa",
+        label: "Consulta",
+        placeholder: "...",
+        hint: "Insira o identificador para buscar",
+        btnQuery: "Buscar",
+        btnCopy: "Copiar",
+        btnCopySuccess: "Copiado",
+        toast_config_error_title: "Erro de Config",
+        toast_config_error_msg: 'Parâmetros "host" ou "ids" ausentes.',
+        toast_attention: "Atenção",
+        toast_empty: "Preencha o campo de busca.",
+        toast_wait: "Aguarde",
+        toast_redirecting: "Redirecionando...",
+        toast_copied_title: "Sucesso",
+        toast_copied_msg: "Link copiado para a área de transferência.",
+        toast_error: "Erro",
+        toast_copy_fail: "Falha ao copiar."
+      }
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const langParam = urlParams.get('lang');
+    const currentLang = langParam === 'pt-BR' ? 'pt-BR' : 'en';
+    const t = translations[currentLang];
+
+    els.title.textContent = urlParams.get('title') || t.title;
+    els.subtitle.textContent = urlParams.get('subtitle') || t.subtitle;
+    els.hint.textContent = urlParams.get('hint') || t.hint;
+    els.label.textContent = urlParams.get('label') || t.label;
+    els.input.placeholder = urlParams.get('placeholder') || t.placeholder;
+    els.btnOpenText.textContent = urlParams.get('btnOpen') || t.btnQuery;
+    els.copyText.textContent = urlParams.get('btnCopy') || t.btnCopy;
+
+    const logoUrl = urlParams.get('logo');
+    if (logoUrl) {
+      els.logoContainer.innerHTML = `<img src="${logoUrl}" alt="Logo" style="width:100%;height:100%;">`;
+    }
+
+    const hostParam = urlParams.get('host');
+    const idsParam = urlParams.get('ids');
+    let baseUrl = hostParam ? hostParam.replace(/\/$/, "") : "";
+    let variableIds = idsParam ? idsParam.split(',').map(id => id.trim()).filter(id => id !== "") : [];
+    const pathSuffix = "/sc_req_item_list.do?sysparm_query=";
+    const viewSuffix = "&sysparm_first_row=1&sysparm_view=";
+
+    function generateLink(val) {
+      if (!val) return "";
+      if (!baseUrl || variableIds.length === 0) {
+        showToast(t.toast_config_error_title, t.toast_config_error_msg, true);
+        return "";
+      }
+      const expandedQuery = variableIds.map(id => `variables.${id}.name=${val}`).join('^OR');
+      return baseUrl + pathSuffix + expandedQuery + viewSuffix;
+    }
+
+    function showToast(title, message, isError = false) {
+      els.toastTitle.textContent = title;
+      els.toastMsg.textContent = message;
+      els.toast.classList.toggle('error', isError);
+      els.toast.classList.add('show');
+      setTimeout(() => els.toast.classList.remove('show'), 3000);
+    }
+
+    els.btnQuery.addEventListener('click', () => {
+      const val = els.input.value.trim();
+      if (!val) {
+        showToast(t.toast_attention, t.toast_empty, true);
+        els.input.focus();
+        return;
+      }
+      const link = generateLink(val);
+      if (link) {
+        showToast(t.toast_wait, t.toast_redirecting);
+        setTimeout(() => window.open(link, '_blank'), 500);
+      }
+    });
+
+    els.btnCopy.addEventListener('click', async () => {
+      const val = els.input.value.trim();
+      if (!val) {
+        showToast(t.toast_attention, t.toast_empty, true);
+        els.input.focus();
+        return;
+      }
+      const link = generateLink(val);
+      if (link) {
+        try {
+          await navigator.clipboard.writeText(link);
+          els.copyIcon.style.display = 'none'; els.checkIcon.style.display = 'block';
+
+          const originalText = els.copyText.textContent;
+          els.copyText.textContent = t.btnCopySuccess;
+
+          showToast(t.toast_copied_title, t.toast_copied_msg);
+
+          setTimeout(() => {
+            els.copyIcon.style.display = 'block'; els.checkIcon.style.display = 'none';
+            els.copyText.textContent = originalText;
+          }, 2000);
+        } catch { showToast(t.toast_error, t.toast_copy_fail, true); }
+      }
+    });
+
+    els.input.addEventListener('keydown', (e) => { if (e.key === 'Enter') els.btnQuery.click(); });
+  </script>
+</body>
+
+</html>
