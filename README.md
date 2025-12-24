@@ -53,7 +53,7 @@ Construct the URL to be used in your Iframe `src` attribute by appending the nec
 
 ### 💡 Configuration Examples
 
-#### Example 1: Basic English Setup
+#### Example: Basic Setup
 ```text
 https://your-username.github.io/servicenow-query-generator/index.html?host=https://dev12345.service-now.com&ids=id1,id2,id3&lang=en&subtitle=SNOW%20Tools
 ```
